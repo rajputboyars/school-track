@@ -1,28 +1,84 @@
-'use client';
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
+import { getAttendance } from "@/services/attendance.service";
+import { getClasses } from "@/services/class.service";
+import { getSubjects } from "@/services/subject.service";
+import { getStudents } from "@/services/student.service";
 import { Search, Calendar, Filter, School, BookOpen } from "lucide-react";
-import { useStore } from "@/lib/store";
+// import { useStore } from "@/lib/store";
 
 export default function AttendanceHistoryPage() {
-  const { classes, subjects, students, attendance } = useStore();
+  // const { classes, subjects, students, attendance } = useStore();
+  const [classes, setClasses] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const [classId, setClassId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [date, setDate] = useState("");
 
+  const fetchData = async () => {
+    try {
+      const [classRes, subjectRes, studentRes] = await Promise.all([
+        getClasses(),
+        getSubjects(),
+        getStudents({}),
+      ]);
+
+      setClasses(classRes.data);
+      setSubjects(subjectRes.data);
+      setStudents(studentRes.data.students || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchAttendance = async () => {
+    try {
+      setLoading(true);
+
+      if (!classId || !subjectId || !date) return;
+
+      const res = await getAttendance({
+        classId,
+        subjectId,
+        date,
+      });
+
+      setAttendance(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    fetchAttendance();
+  }, [classId, subjectId, date]);
+
   // Filtering Logic
-  let filtered = attendance;
-  if (classId && classId !== "all") filtered = filtered.filter(a => a.classId === classId);
-  if (subjectId && subjectId !== "all") filtered = filtered.filter(a => a.subjectId === subjectId);
-  if (date) filtered = filtered.filter(a => a.date === date);
+  // let filtered = attendance;
+  // if (classId && classId !== "all") filtered = filtered.filter(a => a.classId === classId);
+  // if (subjectId && subjectId !== "all") filtered = filtered.filter(a => a.subjectId === subjectId);
+  // if (date) filtered = filtered.filter(a => a.date === date);
 
   // Sort by latest date first
-  filtered = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
+  // filtered = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <div className="p-8 ">
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-gray-800">Attendance History</h1>
-        <p className="text-gray-500 text-sm">View and track past attendance records</p>
+        <p className="text-gray-500 text-sm">
+          View and track past attendance records
+        </p>
       </header>
 
       {/* Filter Bar */}
@@ -31,14 +87,16 @@ export default function AttendanceHistoryPage() {
           <label className="text-[10px] font-bold uppercase text-gray-400 flex items-center gap-1.5">
             <School size={12} /> Filter by Class
           </label>
-          <select 
-            value={classId} 
+          <select
+            value={classId}
             onChange={(e) => setClassId(e.target.value)}
             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#1e816a] transition-colors"
           >
             <option value="all">All Classes</option>
-            {classes.map(c => (
-              <option key={c.id} value={c.id}>{c.className} - {c.section}</option>
+            {classes.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.className} - {c.section}
+              </option>
             ))}
           </select>
         </div>
@@ -47,14 +105,16 @@ export default function AttendanceHistoryPage() {
           <label className="text-[10px] font-bold uppercase text-gray-400 flex items-center gap-1.5">
             <BookOpen size={12} /> Filter by Subject
           </label>
-          <select 
-            value={subjectId} 
+          <select
+            value={subjectId}
             onChange={(e) => setSubjectId(e.target.value)}
             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#1e816a] transition-colors"
           >
             <option value="all">All Subjects</option>
-            {subjects.map(s => (
-              <option key={s.id} value={s.id}>{s.subjectName}</option>
+            {subjects.map((s) => (
+              <option key={s._id} value={s._id}>
+                {s.subjectName}
+              </option>
             ))}
           </select>
         </div>
@@ -63,15 +123,15 @@ export default function AttendanceHistoryPage() {
           <label className="text-[10px] font-bold uppercase text-gray-400 flex items-center gap-1.5">
             <Calendar size={12} /> Filter by Date
           </label>
-          <input 
-            type="date" 
-            value={date} 
+          <input
+            type="date"
+            value={date}
             onChange={(e) => setDate(e.target.value)}
             className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#1e816a]"
           />
         </div>
       </div>
-
+      {loading && <p>Loading attendance...</p>}
       {/* Data Table */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -86,27 +146,40 @@ export default function AttendanceHistoryPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.slice(0, 50).map((rec, index) => {
-                const student = students.find(s => s.id === rec.studentId);
-                const cls = classes.find(c => c.id === rec.classId);
-                const sub = subjects.find(s => s.id === rec.subjectId);
+              {attendance.map((rec, index) => {
+                const student = students.find((s) => s._id === rec.studentId);
+                const cls = classes.find((c) => c._id === rec.classId);
+                const sub = subjects.find((s) => s._id === rec.subjectId);
 
                 return (
-                  <tr key={`${rec.studentId}-${rec.date}-${index}`} className="hover:bg-gray-50/50 transition-colors">
+                  <tr
+                    key={`${rec.studentId}-${rec.date}-${index}`}
+                    className="hover:bg-gray-50/50 transition-colors"
+                  >
                     <td className="px-6 py-4 text-gray-500 tabular-nums">
-                      {new Date(rec.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(rec.date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </td>
-                    <td className="px-6 py-4 font-medium text-gray-800">{student?.name ?? "Unknown Student"}</td>
+                    <td className="px-6 py-4 font-medium text-gray-800">
+                      {student?.name ?? "Unknown Student"}
+                    </td>
                     <td className="px-6 py-4 text-gray-600">
                       {cls ? `${cls.className}-${cls.section}` : "—"}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{sub?.subjectName ?? "—"}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {sub?.subjectName ?? "—"}
+                    </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        rec.status === "present" 
-                        ? "bg-green-100 text-green-700" 
-                        : "bg-red-100 text-red-700"
-                      }`}>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          rec.status === "present"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
                         {rec.status === "present" ? "✓ Present" : "✕ Absent"}
                       </span>
                     </td>
@@ -117,17 +190,20 @@ export default function AttendanceHistoryPage() {
           </table>
         </div>
 
-        {filtered.length === 0 && (
+        {attendance.length === 0 && (
           <div className="py-20 text-center">
             <Filter className="mx-auto text-gray-200 mb-3" size={40} />
-            <p className="text-gray-400 text-sm font-medium">No matching records found.</p>
+            <p className="text-gray-400 text-sm font-medium">
+              No matching records found.
+            </p>
           </div>
         )}
 
-        {filtered.length > 50 && (
+        {attendance.length > 50 && (
           <div className="p-4 bg-gray-50/50 border-t text-center">
             <p className="text-xs text-gray-400 font-medium italic">
-              Showing the latest 50 records. Refine your search to find specific data.
+              Showing the latest 50 records. Refine your search to find specific
+              data.
             </p>
           </div>
         )}
