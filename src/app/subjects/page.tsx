@@ -25,8 +25,6 @@ interface Class {
 }
 
 export default function SubjectsPage() {
-  // const { subjects, classes, addSubject, updateSubject, deleteSubject } = useStore();
-
   // UI State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<Subject | null>(null);
@@ -101,7 +99,7 @@ export default function SubjectsPage() {
   // Grouping logic for the UI
   const grouped = classes.map((c) => ({
     cls: c,
-    subs: subjects.filter((s) => s.classId === c._id),
+    subs: subjects.filter((s) => s.classId?._id === c._id),
   }));
 
   return (
@@ -120,7 +118,13 @@ export default function SubjectsPage() {
           <Plus size={18} /> Add Subject
         </button>
       </header>
-
+      {loading && (
+        <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed">
+          <p className="text-gray-500 text-sm">
+            Loading......
+          </p>
+        </div>
+      )}
       <div className="space-y-6">
         {grouped.map(({ cls, subs }) => (
           <div

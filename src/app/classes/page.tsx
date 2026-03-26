@@ -18,7 +18,6 @@ export default function ClassesPage() {
 
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(false);
-
   // UI State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<Class | null>(null);
@@ -99,7 +98,8 @@ export default function ClassesPage() {
       {/* Grid Layout */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {classes.map((c) => {
-          const count = 0;
+          
+          const count = c?.students?.length;
           return (
             <div
               key={c._id}
@@ -120,7 +120,7 @@ export default function ClassesPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-1 ">
                   <button
                     onClick={() => openEdit(c)}
                     className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"

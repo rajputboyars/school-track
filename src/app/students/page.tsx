@@ -94,7 +94,7 @@ export default function StudentsPage() {
     setForm({
       name: s.name,
       rollNumber: s.rollNumber,
-      classId: s.classId,
+      classId: s.classId?._id,
       section: s.section,
       status: s.status,
     });
@@ -121,7 +121,7 @@ export default function StudentsPage() {
   };
 
   const getClassName = (classId: string) => {
-    const c = classes.find((c) => c._id === classId);
+    const c = classes.find((c) => c._id === classId?._id);
     return c ? `${c.className} - ${c.section}` : "—";
   };
 
@@ -211,7 +211,7 @@ export default function StudentsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2 ">
                       <button
                         onClick={() => openEdit(s)}
                         className="p-1.5 text-gray-400 hover:text-[#1e816a] hover:bg-[#1e816a]/10 rounded-lg transition-colors"

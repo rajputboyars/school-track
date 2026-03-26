@@ -5,10 +5,8 @@ import { getAttendanceReport } from "@/services/attendance.service";
 import { getClasses } from "@/services/class.service";
 import { getSubjects } from "@/services/subject.service";
 import { getStudents } from "@/services/student.service";
-// import { useStore } from "@/lib/store";
 
 export default function ReportsPage() {
-  // const { classes, subjects, students, attendance } = useStore();
 
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
@@ -66,55 +64,7 @@ export default function ReportsPage() {
     fetchReport();
   }, [classFilter]);
 
-  // // Memoized Filtered Data
-  // const filteredAttendance = useMemo(() => {
-  //   let data = attendance;
-  //   if (classFilter !== "all") data = data.filter(a => a.classId === classFilter);
-  //   if (dateFrom) data = data.filter(a => a.date >= dateFrom);
-  //   if (dateTo) data = data.filter(a => a.date <= dateTo);
-  //   return data;
-  // }, [attendance, classFilter, dateFrom, dateTo]);
-
-  // // Aggregate Helper
-  // const calculateStats = (key: 'studentId' | 'classId' | 'subjectId') => {
-  //   const map: Record<string, { total: number; present: number }> = {};
-  //   filteredAttendance.forEach(a => {
-  //     const id = a[key];
-  //     if (!map[id]) map[id] = { total: 0, present: 0 };
-  //     map[id].total++;
-  //     if (a.status === "present") map[id].present++;
-  //   });
-  //   return map;
-  // };
-
-  // Reports Generation
-  // const studentReport = useMemo(() => {
-  //   const stats = calculateStats('studentId');
-  //   return Object.entries(stats).map(([id, d]) => ({
-  //     student: students.find(s => s.id === id),
-  //     ...d,
-  //     percent: Math.round((d.present / d.total) * 100),
-  //   })).sort((a, b) => b.percent - a.percent);
-  // }, [filteredAttendance, students]);
-
-  // const classReport = useMemo(() => {
-  //   const stats = calculateStats('classId');
-  //   return Object.entries(stats).map(([id, d]) => ({
-  //     cls: classes.find(c => c.id === id),
-  //     ...d,
-  //     percent: Math.round((d.present / d.total) * 100),
-  //   })).sort((a, b) => b.percent - a.percent);
-  // }, [filteredAttendance, classes]);
-
-  // const subjectReport = useMemo(() => {
-  //   const stats = calculateStats('subjectId');
-  //   return Object.entries(stats).map(([id, d]) => ({
-  //     subject: subjects.find(s => s.id === id),
-  //     ...d,
-  //     percent: Math.round((d.present / d.total) * 100),
-  //   })).sort((a, b) => b.percent - a.percent);
-  // }, [filteredAttendance, subjects]);
-
+  
   // Custom Progress Bar Component
   const PercentBar = ({ value }: { value: number }) => {
     const getColor = () => {
@@ -231,57 +181,7 @@ export default function ReportsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {/* {view === "student" &&
-              reportData.map((r, i) => (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-800">
-                    {r.student?.name ?? "Unknown"}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 tabular-nums">
-                    {r.total}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 tabular-nums">
-                    {r.present}
-                  </td>
-                  <td className="px-6 py-4">
-                    <PercentBar value={r.percent} />
-                  </td>
-                </tr>
-              ))}
-            {view === "class" &&
-              reportData.map((r, i) => (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-800">
-                    {r.cls ? `${r.cls.className}-${r.cls.section}` : "Unknown"}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 tabular-nums">
-                    {r.total}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 tabular-nums">
-                    {r.present}
-                  </td>
-                  <td className="px-6 py-4">
-                    <PercentBar value={r.percent} />
-                  </td>
-                </tr>
-              ))}
-            {view === "subject" &&
-              reportData.map((r, i) => (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-800">
-                    {r.subject?.subjectName ?? "Unknown"}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 tabular-nums">
-                    {r.total}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 tabular-nums">
-                    {r.present}
-                  </td>
-                  <td className="px-6 py-4">
-                    <PercentBar value={r.percent} />
-                  </td>
-                </tr>
-              ))} */}
+           
             {reportData.map((r: any, i) => (
               <tr key={i}>
                 <td className="px-6 py-4">

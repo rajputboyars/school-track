@@ -1,7 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
 import { Check, X, Calendar, BookOpen, School } from "lucide-react";
-// import { useStore } from "@/lib/store";
 import { useEffect } from "react";
 import { getClasses } from "@/services/class.service";
 import { getSubjects } from "@/services/subject.service";
@@ -9,7 +8,6 @@ import { getStudents } from "@/services/student.service";
 import { getAttendance, markAttendance } from "@/services/attendance.service";
 
 export default function MarkAttendancePage() {
-  // const { classes, subjects, students, attendance, markAttendance } = useStore();
 
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
@@ -71,10 +69,10 @@ export default function MarkAttendancePage() {
     Record<string, "present" | "absent">
   >({});
 
-  const filteredSubjects = subjects.filter((s) => s.classId === classId);
+  const filteredSubjects = subjects.filter((s) => s.classId?._id === classId);
 
   const filteredStudents = students.filter(
-    (s) => s.classId === classId && s.status === "active",
+    (s) => s.classId?._id === classId && s.status === "active",
   );
 
   // Load existing records if they exist for this specific combination

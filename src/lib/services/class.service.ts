@@ -7,7 +7,19 @@ export const createClass = async (data: any) => {
 };
 
 export const getClasses = async () => {
-  return await Class.find().sort({ createdAt: -1 });
+  return await Class.aggregate([
+    {
+      $lookup: {
+        from: "students", // collection name
+        localField: "_id",
+        foreignField: "classId",
+        as: "students",
+      },
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+  ]);
 };
 
 export const updateClass = async (id: string, data: any) => {

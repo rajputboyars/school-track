@@ -5,10 +5,8 @@ import { getClasses } from "@/services/class.service";
 import { getSubjects } from "@/services/subject.service";
 import { getStudents } from "@/services/student.service";
 import { Search, Calendar, Filter, School, BookOpen } from "lucide-react";
-// import { useStore } from "@/lib/store";
 
 export default function AttendanceHistoryPage() {
-  // const { classes, subjects, students, attendance } = useStore();
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
@@ -63,14 +61,6 @@ export default function AttendanceHistoryPage() {
     fetchAttendance();
   }, [classId, subjectId, date]);
 
-  // Filtering Logic
-  // let filtered = attendance;
-  // if (classId && classId !== "all") filtered = filtered.filter(a => a.classId === classId);
-  // if (subjectId && subjectId !== "all") filtered = filtered.filter(a => a.subjectId === subjectId);
-  // if (date) filtered = filtered.filter(a => a.date === date);
-
-  // Sort by latest date first
-  // filtered = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <div className="p-8 ">
@@ -147,9 +137,9 @@ export default function AttendanceHistoryPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {attendance.map((rec, index) => {
-                const student = students.find((s) => s._id === rec.studentId);
+                const student = students.find((s) => s._id === rec.studentId?._id);
                 const cls = classes.find((c) => c._id === rec.classId);
-                const sub = subjects.find((s) => s._id === rec.subjectId);
+                const sub = subjects.find((s) => s._id === rec.subjectId?._id);
 
                 return (
                   <tr

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/connect";
 import Attendance from "@/lib/models/Attendance";
 import { successResponse, errorResponse } from "@/lib/utils/response";
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,32 +15,9 @@ export async function GET(req: NextRequest) {
 
     const match: any = {};
 
-    if (classId) match.classId = classId;
-    if (studentId) match.studentId = studentId;
+if (classId) match.classId = new mongoose.Types.ObjectId(classId);
+if (studentId) match.studentId = new mongoose.Types.ObjectId(studentId);
 
-    // const report = await Attendance.aggregate([
-    //   { $match: match },
-    //   {
-    //     $group: {
-    //       _id: "$studentId",
-    //       total: { $sum: 1 },
-    //       present: {
-    //         $sum: {
-    //           $cond: [{ $eq: ["$status", "present"] }, 1, 0],
-    //         },
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       total: 1,
-    //       present: 1,
-    //       percentage: {
-    //         $multiply: [{ $divide: ["$present", "$total"] }, 100],
-    //       },
-    //     },
-    //   },
-    // ]);
     const report = await Attendance.aggregate([
       { $match: match },
 
@@ -84,9 +62,9 @@ export async function GET(req: NextRequest) {
             subjectId: "$subjectId",
           },
           name: { $first: "$student.name" },
-          className: { $first: "$class.name" },
+          className: { $first: "$class.className" },
           section: { $first: "$class.section" },
-          subjectName: { $first: "$subject.name" },
+          subjectName: { $first: "$subject.subjectName" },
 
           total: { $sum: 1 },
           present: {
