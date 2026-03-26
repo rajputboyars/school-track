@@ -27,6 +27,11 @@ export const getAttendance = (params: {
   return apiRequest(`/api/attendance?${query}`);
 };
 
+// ✅ Get Attendance (by class + subject + date)
+export const getTodayAttendance = () => {
+  return apiRequest(`/api/attendance/today`);
+};
+
 // ✅ Update Attendance (single record)
 export const updateAttendanceById = (
   attendanceId: string,
