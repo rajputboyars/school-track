@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db/connect";
 import Attendance from "@/lib/models/Attendance";
 import { normalizeDate } from "@/lib/utils/date";
 import { successResponse, errorResponse } from "@/lib/utils/response";
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,12 +15,10 @@ export async function GET(req: NextRequest) {
     const subjectId = searchParams.get("subjectId");
     const studentId = searchParams.get("studentId");
     const date = searchParams.get("date");
-
     const query: any = {};
-
-    if (classId) query.classId = classId;
-    if (subjectId) query.subjectId = subjectId;
-    if (studentId) query.studentId = studentId;
+    if (classId) query.classId = new mongoose.Types.ObjectId(classId);
+    if (subjectId) query.subjectId = new mongoose.Types.ObjectId(subjectId);
+    if (studentId) query.studentId = new mongoose.Types.ObjectId(studentId);
     if (date) query.date = normalizeDate(date);
 
     const data = await Attendance.find(query)

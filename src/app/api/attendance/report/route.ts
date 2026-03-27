@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/connect";
 import Attendance from "@/lib/models/Attendance";
 import { successResponse, errorResponse } from "@/lib/utils/response";
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,14 +15,57 @@ export async function GET(req: NextRequest) {
 
     const match: any = {};
 
-    if (classId) match.classId = classId;
-    if (studentId) match.studentId = studentId;
+if (classId) match.classId = new mongoose.Types.ObjectId(classId);
+if (studentId) match.studentId = new mongoose.Types.ObjectId(studentId);
 
     const report = await Attendance.aggregate([
       { $match: match },
+
+      // Join Student
+      {
+        $lookup: {
+          from: "students",
+          localField: "studentId",
+          foreignField: "_id",
+          as: "student",
+        },
+      },
+      { $unwind: "$student" },
+
+      // Join Class
+      {
+        $lookup: {
+          from: "classes",
+          localField: "classId",
+          foreignField: "_id",
+          as: "class",
+        },
+      },
+      { $unwind: "$class" },
+
+      // Join Subject
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "subjectId",
+          foreignField: "_id",
+          as: "subject",
+        },
+      },
+      { $unwind: "$subject" },
+
+      // Group by student + subject
       {
         $group: {
-          _id: "$studentId",
+          _id: {
+            studentId: "$studentId",
+            subjectId: "$subjectId",
+          },
+          name: { $first: "$student.name" },
+          className: { $first: "$class.className" },
+          section: { $first: "$class.section" },
+          subjectName: { $first: "$subject.subjectName" },
+
           total: { $sum: 1 },
           present: {
             $sum: {
@@ -30,19 +74,28 @@ export async function GET(req: NextRequest) {
           },
         },
       },
+
+      // Final format
       {
         $project: {
+          _id: 0,
+          name: 1,
+          className: 1,
+          section: 1,
+          subjectName: 1,
           total: 1,
           present: 1,
-          percentage: {
-            $multiply: [{ $divide: ["$present", "$total"] }, 100],
+          percent: {
+            $round: [
+              { $multiply: [{ $divide: ["$present", "$total"] }, 100] },
+              0,
+            ],
           },
         },
       },
     ]);
-
     return NextResponse.json(
-      successResponse(report, "Report generated successfully")
+      successResponse(report, "Report generated successfully"),
     );
   } catch (error: any) {
     return NextResponse.json(errorResponse(error.message), {
