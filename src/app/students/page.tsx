@@ -14,7 +14,7 @@ interface Student {
   _id: string;
   name: string;
   rollNumber: string;
-  classId: string;
+  classId: any;
   section: string;
   status: "active" | "inactive";
 }
@@ -120,7 +120,7 @@ export default function StudentsPage() {
     setIsModalOpen(false);
   };
 
-  const getClassName = (classId: string) => {
+  const getClassName = (classId: any) => {
     const c = classes.find((c) => c._id === classId?._id);
     return c ? `${c.className} - ${c.section}` : "—";
   };

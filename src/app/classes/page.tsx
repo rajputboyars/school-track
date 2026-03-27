@@ -12,6 +12,7 @@ interface Class {
   _id: string;
   className: string;
   section: string;
+  students: string;
 }
 
 export default function ClassesPage() {

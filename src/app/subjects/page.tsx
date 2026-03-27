@@ -15,7 +15,7 @@ import { getClasses } from "@/services/class.service";
 interface Subject {
   _id: string;
   subjectName: string;
-  classId: string;
+  classId: any;
 }
 
 interface Class {
@@ -97,7 +97,7 @@ export default function SubjectsPage() {
   };
 
   // Grouping logic for the UI
-  const grouped = classes.map((c) => ({
+  const grouped = classes.map((c:any) => ({
     cls: c,
     subs: subjects.filter((s) => s.classId?._id === c._id),
   }));
