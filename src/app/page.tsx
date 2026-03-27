@@ -8,6 +8,7 @@ import {
   getAttendance,
   getTodayAttendance,
 } from "@/services/attendance.service";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const [students, setStudents] = useState<any[]>([]);
@@ -16,6 +17,13 @@ export default function DashboardPage() {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const today = new Date().toLocaleDateString("en-CA");
+  const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -123,7 +131,7 @@ export default function DashboardPage() {
             Overview of your school attendance system
           </p>
         </header>
-          {loading && <p>Loading dashboard...</p>}
+        {loading && <p>Loading dashboard...</p>}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
