@@ -16,7 +16,8 @@ interface Class {
 }
 
 export default function ClassesPage() {
-
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(false);
   // UI State
@@ -99,7 +100,6 @@ export default function ClassesPage() {
       {/* Grid Layout */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {classes.map((c) => {
-          
           const count = c?.students?.length;
           return (
             <div
@@ -140,7 +140,15 @@ export default function ClassesPage() {
               <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-gray-500">
                   <Users size={14} className="text-gray-400" />
-                  <span className="text-sm font-medium">{count} Students</span>
+                  <span
+                    onClick={() => {
+                      setSelectedClass(c);
+                      setIsStudentModalOpen(true);
+                    }}
+                    className="text-sm font-medium cursor-pointer hover:text-[#1e816a]"
+                  >
+                    {count} Students
+                  </span>
                 </div>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">
                   Active
@@ -220,6 +228,55 @@ export default function ClassesPage() {
                 className="flex-1 bg-[#1e816a] text-white py-2.5 rounded-lg font-bold text-sm hover:bg-[#186b58] transition-all shadow-lg shadow-emerald-900/10"
               >
                 {editing ? "Save Changes" : "Create Class"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isStudentModalOpen && selectedClass && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="px-6 py-4 border-b flex items-center justify-between bg-gray-50">
+              <h2 className="text-lg font-bold text-gray-800">
+                Students - Grade {selectedClass.className}
+              </h2>
+              <button
+                onClick={() => setIsStudentModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 max-h-[400px] overflow-y-auto">
+              {Array.isArray(selectedClass.students) &&
+              selectedClass.students.length > 0 ? (
+                <ul className="space-y-3">
+                  {selectedClass.students.map((student: any, index: number) => (
+                    <li
+                      key={index}
+                      className="p-3 bg-gray-50 rounded-lg text-sm font-medium text-gray-700 list-decimal list-inside"
+                    >
+                      {student.name || student}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-400 text-sm text-center">
+                  No students found in this class.
+                </p>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t bg-gray-50 text-right">
+              <button
+                onClick={() => setIsStudentModalOpen(false)}
+                className="px-4 py-2 bg-[#1e816a] text-white rounded-lg text-sm font-bold"
+              >
+                Close
               </button>
             </div>
           </div>
